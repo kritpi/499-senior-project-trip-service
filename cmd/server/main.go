@@ -35,8 +35,8 @@ func main() {
 	defer pool.Close()
 
 	// repo
-	repo := repository.New(ctx, pool)
-	svc := service.New(&repo)
+	repo := repository.New(ctx, pool, *cfg)
+	svc := service.New(&repo, cfg)
 	h := handler.NewRestApi(svc)
 
 	router.SetupRouter(app, h)

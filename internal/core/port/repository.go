@@ -9,4 +9,7 @@ import (
 type Repository interface {
 	GetTripsInfo(ctx context.Context) ([]domain.Trip, error)
 	GetTripsInfoTest(ctx context.Context) ([]domain.Trip, error)
+
+	GetMemberByEmail(ctx context.Context, email string) (*domain.Member, error)
+	CreateMember(ctx context.Context, member domain.Member) error
 }
