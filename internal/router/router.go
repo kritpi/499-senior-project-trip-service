@@ -9,6 +9,9 @@ func SetupRouter(app *fiber.App, h handler.RestHandler) {
 	api := app.Group("/api")
 	v1 := api.Group("/v1")
 
+	// baseUrl/api/v1/auth/google
+	v1.Post("/auth/google", h.GoogleAuth)
+
 	v1.Get("/trips",h.GetTrips)
 	
 }
