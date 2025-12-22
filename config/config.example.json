@@ -1,0 +1,21 @@
+{
+    "app": {
+        "name": "",
+        "env": "",
+        "timezone": ""
+    },
+    "server": {
+        "host": "",
+        "port": ""
+    },
+    "database": {
+        "url": ""
+    },
+    "auth": {
+        "client_id": "",
+        "jwt_secrets": ""
+    },
+    "table_schema": {
+        "member_table": ""
+    }
+}
