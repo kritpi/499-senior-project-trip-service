@@ -37,7 +37,7 @@ func main() {
 	// repo
 	repo := repository.New(ctx, pool, *cfg)
 	svc := service.New(&repo, cfg)
-	h := handler.NewRestApi(svc)
+	h := handler.NewRestApi(svc, *cfg)
 
 	router.SetupRouter(app, h)
 

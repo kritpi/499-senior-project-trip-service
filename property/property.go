@@ -30,4 +30,5 @@ type TableSchema struct {
 type Auth struct {
 	ClientId   string `mapstructure:"client_id"`
 	JWTSecrets string `mapstructure:"jwt_secrets"`
+	ClientSecrets string `mapstructure:"client_secret"`
 }

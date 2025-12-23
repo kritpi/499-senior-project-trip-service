@@ -7,18 +7,14 @@ import (
 
 type JWTCustomClaims model.JWTCustomClaims
 
-type GoogleIdToken struct {
-	IDToken string `json:"id_token"`
+type GoogleAuthRequest struct {
+	Code         string `json:"code"`
+	CodeVerifier string `json:"code_verifier"`
+	RedirectURI  string `json:"redirect_uri"`
 }
 
 type GoogleAuthResponse struct {
 	AccessToken string `json:"access_token"`
-}
-
-func (g GoogleIdToken) ToDomain() *domain.GoogleIdToken {
-	return &domain.GoogleIdToken{
-		IDToken: g.IDToken,
-	}
 }
 
 func (g GoogleAuthResponse) FromDomain(dm *domain.GoogleAuthResponse) *GoogleAuthResponse {
