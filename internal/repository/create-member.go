@@ -9,7 +9,7 @@ import (
 	"github.com/kritpi/499-senior-project-trip-service/internal/core/domain"
 )
 
-func (r *Repository) CreateMember(ctx context.Context, member domain.Member) error {
+func (r *Repository) CreateMember(ctx context.Context, member domain.Member) (id string, err error) {
 	queryStr := fmt.Sprintf(
 		`INSERT INTO %s (
 			id,
@@ -21,7 +21,7 @@ func (r *Repository) CreateMember(ctx context.Context, member domain.Member) err
 		 @email,
 		 @name,
 		 @image_url
-		)`, r.cfg.Table.MemberTable)
+		) RETURNING id`, r.cfg.Table.MemberTable)
 
 	args := pgx.NamedArgs{
 		"id":        member.ID,
@@ -30,11 +30,12 @@ func (r *Repository) CreateMember(ctx context.Context, member domain.Member) err
 		"image_url": member.ImageUrl,
 	}
 
-	c, err := r.db.Exec(ctx, queryStr, args)
-	if err != nil {
-		log.Errorf(err.Error())
-		return err
+	var insertedID string
+	if err := r.db.QueryRow(ctx, queryStr, args).Scan(&insertedID); err != nil {
+		log.Errorf("create member error: %v", err)
+		return "", err
 	}
-	log.Infof("Inserted: %+v", c.RowsAffected())
-	return nil
+
+	log.Infof("Inserted member id=%s", insertedID)
+	return insertedID, nil
 }

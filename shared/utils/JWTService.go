@@ -35,11 +35,12 @@ func GenerateToken(googleClaims domain.GoogleUserClaims, now time.Time, cfg prop
 
 func ParseAndValidateToken(tokenString string, cfg property.Property) (*model.JWTCustomClaims, error) {
 	secret := []byte(cfg.Auth.JWTSecrets)
+
 	token, err := jwt.ParseWithClaims(
 		tokenString,
-		model.JWTCustomClaims{},
+		&model.JWTCustomClaims{},
 		func(t *jwt.Token) (interface{}, error) {
-			if t.Method.Alg() != jwt.SigningMethodES256.Alg() {
+			if t.Method.Alg() != jwt.SigningMethodHS256.Alg() {
 				return nil, jwt.ErrTokenSignatureInvalid
 			}
 			return secret, nil
@@ -53,5 +54,6 @@ func ParseAndValidateToken(tokenString string, cfg property.Property) (*model.JW
 	if !ok || !token.Valid {
 		return nil, jwt.ErrTokenSignatureInvalid
 	}
+
 	return claims, nil
 }
