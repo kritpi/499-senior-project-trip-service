@@ -25,10 +25,11 @@ type DatabaseConfig struct {
 
 type TableSchema struct {
 	MemberTable string `mapstructure:"member_table"`
+	TripTable   string `mapstructure:"trip_table"`
 }
 
 type Auth struct {
-	ClientId   string `mapstructure:"client_id"`
-	JWTSecrets string `mapstructure:"jwt_secrets"`
+	ClientId      string `mapstructure:"client_id"`
+	JWTSecrets    string `mapstructure:"jwt_secrets"`
 	ClientSecrets string `mapstructure:"client_secret"`
 }

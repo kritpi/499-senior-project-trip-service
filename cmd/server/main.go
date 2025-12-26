@@ -28,7 +28,7 @@ func main() {
 	app := fiber.New()
 	middleware.SetupCORS(app, cfg)
 
-	// init deps
+	// init db
 	ctx := context.Background()
 	// db
 	pool := db.NewPostgres(ctx, cfg.Database.Url)
@@ -39,7 +39,7 @@ func main() {
 	svc := service.New(&repo, cfg)
 	h := handler.NewRestApi(svc, *cfg)
 
-	router.SetupRouter(app, h)
+	router.SetupRouter(app, h, *cfg)
 
 	// --- Socket.IO ---
 	socketHandler := socket.NewSocketIO(svc)

@@ -11,6 +11,9 @@ type RestHandler interface {
 
 	// Authentication
 	GoogleAuth(c *fiber.Ctx) error
+
+	// Trip
+	UpsertTrip(c *fiber.Ctx) error
 }
 
 type restHandler struct {

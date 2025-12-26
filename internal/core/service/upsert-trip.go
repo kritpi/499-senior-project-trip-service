@@ -1,0 +1,38 @@
+package service
+
+import (
+	"context"
+	"fmt"
+	"time"
+
+	"github.com/gofiber/fiber/v2/log"
+	"github.com/kritpi/499-senior-project-trip-service/internal/core/domain"
+)
+
+func (s *service) UpsertTrip(ctx context.Context, in domain.UpsertTripRequest) (*domain.UpsertTripResponse, error) {
+	now := time.Now().Local()
+
+	member, err := s.repo.GetMemberById(ctx, in.OwnerId)
+	if err != nil || member == nil {
+		log.Errorf("member id not found: %+v", err)
+		return nil, err
+	}
+
+	// validate if end date is not before start date
+	if in.EndDate.Before(*in.StartDate) {
+		return nil, fmt.Errorf("end date cannot be before start date")
+	}
+
+	// Insert CreatedAt for a new trip
+	if in.ID == nil {
+		in.CreatedAt = now
+	}
+	in.UpdatedAt = now
+
+	resp, err := s.repo.UpsertTrip(ctx, in)
+	if err != nil {
+		log.Errorf("unable to insert/update trip: %+v", err)
+		return nil, err
+	}
+	return resp, err
+}

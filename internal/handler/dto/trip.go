@@ -1,17 +1,14 @@
 package dto
 
-import "time"
+import (
+	"time"
+
+	"github.com/kritpi/499-senior-project-trip-service/internal/core/domain"
+	"github.com/kritpi/499-senior-project-trip-service/shared/utils"
+)
 
 // Trip represents a trip entity
 type Trip struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Destination string    `json:"destination"`
-	StartDate   time.Time `json:"start_date"`
-	EndDate     time.Time `json:"end_date"`
-	Status      string    `json:"status"` // planning, ongoing, completed, cancelled
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 // GetTripsRequest is the request for getting trips
@@ -21,4 +18,57 @@ type GetTripsRequest struct {
 // GetTripsResponse is the response for getting trips
 type GetTripsResponse struct {
 	Trips []Trip `json:"trips"`
+}
+
+// Upsert trip request
+type UpsertTripRequest struct {
+	ID *int `json:"trip_id"`
+	// OwnerId      string  `json:"owner_id"`
+	TripName     string  `json:"trip_name"`
+	Desciption   *string `json:"description"`
+	StartDate    *string `json:"start_date"` // 2025-07-11
+	EndDate      *string `json:"end_date"`   // 2025-07-11
+	MainLocation *string `json:"main_location"`
+	CreatedAt    string  `json:"created_at"`
+	UpdatedAt    string  `json:"updated_at"`
+}
+
+func (t UpsertTripRequest) ToDomain(memberId string) *domain.UpsertTripRequest {
+	var startDate *time.Time
+	if t.StartDate != nil {
+		var err error
+		startDate, err = utils.DateStringToStartDate(*t.StartDate, utils.DATE_FORMAT)
+		if err != nil {
+			return nil
+		}
+	}
+
+	var endDate *time.Time
+	if t.EndDate != nil {
+		var err error
+		endDate, err = utils.DateStringToStartDate(*t.EndDate, utils.DATE_FORMAT)
+		if err != nil {
+			return nil
+		}
+	}
+
+	return &domain.UpsertTripRequest{
+		ID:           t.ID,
+		OwnerId:      memberId,
+		TripName:     t.TripName,
+		Desciption:   t.Desciption,
+		StartDate:    startDate,
+		EndDate:      endDate,
+		MainLocation: t.MainLocation,
+	}
+}
+
+type UpsertTripResponse struct {
+	TripId int `json:"trip_id"`
+}
+
+func (t UpsertTripResponse) FromDomain(dm *domain.UpsertTripResponse) *UpsertTripResponse {
+	return &UpsertTripResponse{
+		TripId: dm.TripId,
+	}
 }
