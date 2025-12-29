@@ -15,9 +15,23 @@ type Trip struct {
 	Description  string    `json:"description"`
 	StartDate    time.Time `json:"start_date"`
 	EndDate      time.Time `json:"end_date"`
-	MainLocation string    `json:"main_location`
+	MainLocation string    `json:"main_location"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
+}
+
+func (t Trip) FromEntity(e entity.Trip) *Trip {
+	return &Trip{
+		ID:           e.ID,
+		OwnerId:      e.OwnerId,
+		TripName:     e.TripName,
+		Description:  e.Description,
+		StartDate:    e.StartDate,
+		EndDate:      e.EndDate,
+		MainLocation: e.MainLocation,
+		CreatedAt:    e.CreatedAt,
+		UpdatedAt:    e.UpdatedAt,
+	}
 }
 
 // GetTripsRequest is the request for getting trips
@@ -61,4 +75,38 @@ type BatchCreateTripMemberRequest struct {
 	TripId    int          `json:"trip_id"`
 	Members   []TripMember `json:"members"`
 	CreatedAt time.Time    `json:"created_at"`
+}
+
+type GetMemberTripsRequest struct {
+	MemberId string `json:"member_id"`
+}
+
+type GetMemberTripsResponse struct {
+	Trips []MemberTrips `json:"trips"`
+}
+
+type MemberTrips struct {
+	TripId       int           `json:"trip_id"`
+	TripName     string        `json:"trip_name"`
+	StartDate    time.Time     `json:"start_date"`
+	EndDate      time.Time     `json:"end_date"`
+	MainLocation string        `json:"main_location"`
+	Role         enum.TripRole `json:"role"`
+}
+
+func (t GetMemberTripsResponse) FromEntity(e entity.GetMemberTripsResponse) *GetMemberTripsResponse {
+	trips := make([]MemberTrips, len(e.Trips))
+	for i, t := range e.Trips {
+		trips[i] = MemberTrips{
+			TripId:       t.TripId,
+			TripName:     t.TripName,
+			StartDate:    t.StartDate,
+			EndDate:      t.EndDate,
+			MainLocation: t.MainLocation,
+			Role:         t.Role,
+		}
+	}
+	return &GetMemberTripsResponse{
+		Trips: trips,
+	}
 }

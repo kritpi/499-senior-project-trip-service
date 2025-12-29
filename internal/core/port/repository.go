@@ -19,4 +19,5 @@ type Repository interface {
 	UpsertTrip(ctx context.Context, in domain.UpsertTripRequest) (*domain.UpsertTripResponse, error)
 	GetTripById(ctx context.Context, tripId int) (*domain.Trip, error)
 	BatchCreateTripMember(ctx context.Context, in domain.BatchCreateTripMemberRequest) error
+	GetMemberTrips(ctx context.Context, in domain.GetMemberTripsRequest) (*domain.GetMemberTripsResponse, error)
 }

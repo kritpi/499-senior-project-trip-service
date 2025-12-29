@@ -24,7 +24,7 @@ func (h *restHandler) UpsertTrip(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(dto.UpsertTripResponse{
+	return c.Status(fiber.StatusCreated).JSON(dto.UpsertTripResponse{
 		TripId: resp.TripId,
 	})
 
