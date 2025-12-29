@@ -17,14 +17,6 @@ func (h *restHandler) UpsertTrip(c *fiber.Ctx) error {
 		})
 	}
 
-	// tripId := c.Params("trip_id")
-	// tripIdInt, err := strconv.Atoi(tripId)
-	// if err != nil {
-	// 	log.Errorf("unable to parse trip_id to int: %+v", err)
-	// 	return err
-	// }
-
-	// req.ID = &tripIdInt
 	resp, err := h.svc.UpsertTrip(ctx, *req.ToDomain(jwtClaims.ID))
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{

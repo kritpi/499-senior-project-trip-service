@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/kritpi/499-senior-project-trip-service/internal/core/domain"
+	"github.com/kritpi/499-senior-project-trip-service/internal/enum"
 	"github.com/kritpi/499-senior-project-trip-service/shared/utils"
 )
 
@@ -29,8 +30,6 @@ type UpsertTripRequest struct {
 	StartDate    *string `json:"start_date"` // 2025-07-11
 	EndDate      *string `json:"end_date"`   // 2025-07-11
 	MainLocation *string `json:"main_location"`
-	CreatedAt    string  `json:"created_at"`
-	UpdatedAt    string  `json:"updated_at"`
 }
 
 func (t UpsertTripRequest) ToDomain(memberId string) *domain.UpsertTripRequest {
@@ -71,4 +70,15 @@ func (t UpsertTripResponse) FromDomain(dm *domain.UpsertTripResponse) *UpsertTri
 	return &UpsertTripResponse{
 		TripId: dm.TripId,
 	}
+}
+
+type TripMember struct {
+	MemberId string        `json:"member_id"`
+	Role     enum.TripRole `json:"role"`
+}
+
+type CreateTripMemberRequest struct {
+	TripId    int          `json:"trip_id"`
+	Members   []TripMember `json:"members"`
+	CreatedAt time.Time    `json:"created_at"`
 }
