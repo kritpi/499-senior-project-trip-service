@@ -31,3 +31,7 @@ func DateStringToEndDate(dateString string, format DateFormat) (*time.Time, erro
 	d := time.Date(t.Year(), t.Month(), t.Day(), 23, 59, 59, 0, time.UTC)
 	return &d, nil
 }
+
+func DateTimeToDateString(t time.Time) string {
+	return t.Format(string(DATE_FORMAT))
+}

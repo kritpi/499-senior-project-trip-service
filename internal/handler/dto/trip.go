@@ -82,3 +82,44 @@ type CreateTripMemberRequest struct {
 	Members   []TripMember `json:"members"`
 	CreatedAt time.Time    `json:"created_at"`
 }
+
+type GetMemberTripsRequest struct {
+	MemberId string `json:"member_id"`
+}
+
+func (t GetMemberTripsRequest) ToDomain(memberId string) *domain.GetMemberTripsRequest {
+	return &domain.GetMemberTripsRequest{
+		MemberId: memberId,
+	}
+}
+
+type GetMemberTripsResponse struct {
+	Trips []MemberTrips `json:"trips"`
+}
+
+type MemberTrips struct {
+	TripId       int           `json:"trip_id"`
+	TripName     string        `json:"trip_name"`
+	StartDate    string        `json:"start_date"`
+	EndDate      string        `json:"end_date"`
+	MainLocation string        `json:"main_location"`
+	Role         enum.TripRole `json:"role"`
+}
+
+func (t GetMemberTripsResponse) FromDomain(dm *domain.GetMemberTripsResponse) *GetMemberTripsResponse {
+	trip := make([]MemberTrips, len(dm.Trips))
+	for i, t := range dm.Trips {
+		trip[i] = MemberTrips{
+			TripId:       t.TripId,
+			TripName:     t.TripName,
+			StartDate:    utils.DateTimeToDateString(t.StartDate),
+			EndDate:      utils.DateTimeToDateString(t.EndDate),
+			MainLocation: t.MainLocation,
+			Role:         t.Role,
+		}
+	}
+
+	return &GetMemberTripsResponse{
+		Trips: trip,
+	}
+}

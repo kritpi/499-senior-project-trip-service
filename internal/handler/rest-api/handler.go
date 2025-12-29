@@ -14,6 +14,7 @@ type RestHandler interface {
 
 	// Trip
 	UpsertTrip(c *fiber.Ctx) error
+	GetMemberTrips(c *fiber.Ctx) error
 }
 
 type restHandler struct {
