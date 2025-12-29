@@ -24,8 +24,9 @@ type DatabaseConfig struct {
 }
 
 type TableSchema struct {
-	MemberTable string `mapstructure:"member_table"`
-	TripTable   string `mapstructure:"trip_table"`
+	MemberTable      string `mapstructure:"member_table"`
+	TripTable        string `mapstructure:"trip_table"`
+	TripMembersTable string `mapstructure:"trip_memebers_table"`
 }
 
 type Auth struct {

@@ -29,10 +29,40 @@ func (s *service) UpsertTrip(ctx context.Context, in domain.UpsertTripRequest) (
 	}
 	in.UpdatedAt = now
 
-	resp, err := s.repo.UpsertTrip(ctx, in)
+	var resp *domain.UpsertTripResponse
+
+	err = s.repo.Transactional(ctx, func(txCtx context.Context) error {
+		var txErr error
+		resp, txErr = s.repo.UpsertTrip(txCtx, in)
+		if txErr != nil {
+			log.Errorf("unable to insert/update trip: %+v", txErr)
+			return txErr
+		}
+		
+		// Checking if trip is existed. If not, insert trip member (OWNER)
+		if in.ID == nil {
+			var tripMember []domain.TripMember
+			tripMember = append(tripMember, domain.TripMember{
+				MemberId: member.ID,
+				Role:     "OWNER",
+			})
+			createReq := domain.BatchCreateTripMemberRequest{
+				TripId:    resp.TripId,
+				Members:   tripMember,
+				CreatedAt: now,
+			}
+			txErr = s.repo.BatchCreateTripMember(txCtx, createReq)
+			if txErr != nil {
+				log.Errorf("unable to insert trip member: %+v", txErr)
+				return txErr
+			}
+		}
+
+		return nil
+	})
 	if err != nil {
-		log.Errorf("unable to insert/update trip: %+v", err)
 		return nil, err
 	}
-	return resp, err
+
+	return resp, nil
 }

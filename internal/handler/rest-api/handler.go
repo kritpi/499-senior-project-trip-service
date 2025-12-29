@@ -7,7 +7,7 @@ import (
 )
 
 type RestHandler interface {
-	GetTrips(c *fiber.Ctx) error
+	// GetTrips(c *fiber.Ctx) error
 
 	// Authentication
 	GoogleAuth(c *fiber.Ctx) error

@@ -13,15 +13,13 @@ func SetupRouter(app *fiber.App, h handler.RestHandler, cfg property.Property) {
 
 	// Auth
 	v1.Post("/auth/google", h.GoogleAuth)
-	
+
 	// Trip
 	trip := v1.Group("trip")
 	trip.Use(middleware.AuthMiddleware(cfg))
-	
+
 	trip.Put("/", h.UpsertTrip)
 	// Get trips (with member id) => my trip, my involved trip
 	// Get trip by id (id)
-
-	v1.Get("/trips", h.GetTrips)
 
 }

@@ -3,19 +3,21 @@ package domain
 import (
 	"time"
 
+	"github.com/kritpi/499-senior-project-trip-service/internal/enum"
 	"github.com/kritpi/499-senior-project-trip-service/internal/repository/entity"
 )
 
 // Trip represents a trip entity
 type Trip struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Destination string    `json:"destination"`
-	StartDate   time.Time `json:"start_date"`
-	EndDate     time.Time `json:"end_date"`
-	Status      string    `json:"status"` // planning, ongoing, completed, cancelled
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID           int       `json:"id"`
+	OwnerId      string    `json:"owner_id"`
+	TripName     string    `json:"name"`
+	Description  string    `json:"description"`
+	StartDate    time.Time `json:"start_date"`
+	EndDate      time.Time `json:"end_date"`
+	MainLocation string    `json:"main_location`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
 }
 
 // GetTripsRequest is the request for getting trips
@@ -48,4 +50,15 @@ func (t UpsertTripResponse) FromEntity(e entity.UpsertTripResponse) *UpsertTripR
 	return &UpsertTripResponse{
 		TripId: t.TripId,
 	}
+}
+
+type TripMember struct {
+	MemberId string        `json:"member_id"`
+	Role     enum.TripRole `json:"role"`
+}
+
+type BatchCreateTripMemberRequest struct {
+	TripId    int          `json:"trip_id"`
+	Members   []TripMember `json:"members"`
+	CreatedAt time.Time    `json:"created_at"`
 }

@@ -10,8 +10,8 @@ import (
 )
 
 func (r *Repository) CreateMember(ctx context.Context, member domain.Member) (id string, err error) {
-	queryStr := fmt.Sprintf(
-		`INSERT INTO %s (
+	queryStr := fmt.Sprintf(`
+		INSERT INTO %s (
 			id,
 			email,
 			name,

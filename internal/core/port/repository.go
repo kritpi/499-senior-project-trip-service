@@ -7,8 +7,8 @@ import (
 )
 
 type Repository interface {
-	GetTripsInfo(ctx context.Context) ([]domain.Trip, error)
-	GetTripsInfoTest(ctx context.Context) ([]domain.Trip, error)
+	// Transactional
+	Transactional(ctx context.Context, fn func(txCtx context.Context) error) error
 
 	// Auth
 	GetMemberByEmail(ctx context.Context, email string) (*domain.Member, error)
@@ -17,4 +17,6 @@ type Repository interface {
 
 	// Trip
 	UpsertTrip(ctx context.Context, in domain.UpsertTripRequest) (*domain.UpsertTripResponse, error)
+	GetTripById(ctx context.Context, tripId int) (*domain.Trip, error)
+	BatchCreateTripMember(ctx context.Context, in domain.BatchCreateTripMemberRequest) error
 }

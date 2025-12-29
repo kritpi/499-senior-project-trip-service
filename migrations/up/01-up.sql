@@ -1,3 +1,5 @@
+ALTER DATABASE postgres SET TIMEZONE='Asia/Bangkok';
+
 -- members
 CREATE TABLE member (
     id TEXT PRIMARY KEY,
@@ -20,4 +22,11 @@ CREATE TABLE trip (
     updated_at TIMESTAMPTZ NOT NULL
 );
 
-ALTER DATABASE postgres SET TIMEZONE='Asia/Bangkok';
+-- trip_members (roles)
+CREATE TABLE trip_members (
+    trip_id INT NOT NULL REFERENCES trip(id),
+    member_id TEXT NOT NULL REFERENCES member(id),
+    member_role TEXT NOT NULL, -- VIEWER, OWNER, EDITOR
+    created_at TIMESTAMPTZ NOT NULL,
+    PRIMARY KEY (trip_id, member_id)
+);
