@@ -17,3 +17,15 @@ func (m Member) FromEntity(e entity.Member) *Member {
 		ImageUrl: e.ImageUrl,
 	}
 }
+
+type GetExistingMemberResp struct {
+	ID    string `json:"id"`
+	Email string `json:"email"`
+}
+
+func (g GetExistingMemberResp) FromEntity(e entity.GetExistingMemberResp) *GetExistingMemberResp {
+	return &GetExistingMemberResp{
+		ID:    e.ID,
+		Email: e.Email,
+	}
+}

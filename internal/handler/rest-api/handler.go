@@ -15,6 +15,8 @@ type RestHandler interface {
 	// Trip
 	UpsertTrip(c *fiber.Ctx) error
 	GetMemberTrips(c *fiber.Ctx) error
+	GetTripById(c *fiber.Ctx) error
+	InviteMember(c *fiber.Ctx) error
 }
 
 type restHandler struct {
@@ -26,6 +28,5 @@ func NewRestApi(svc port.Service, cfg property.Property) RestHandler {
 	return &restHandler{
 		svc: svc,
 		cfg: cfg,
-
 	}
 }

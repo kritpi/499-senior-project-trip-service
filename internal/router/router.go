@@ -17,10 +17,8 @@ func SetupRouter(app *fiber.App, h handler.RestHandler, cfg property.Property) {
 	// Trip
 	trip := v1.Group("trip")
 	trip.Use(middleware.AuthMiddleware(cfg))
-
-	trip.Put("/", h.UpsertTrip)
-	trip.Get("/", h.GetMemberTrips)
-	// Get trips (with member id) => my trip, my involved trip
-	// Get trip by id (id)
-
+	trip.Put("/", h.UpsertTrip) // Create/Update trip
+	trip.Get("/", h.GetMemberTrips) // Get member's trips
+	trip.Get("/:id", h.GetTripById) // Get trip by ID
+	trip.Post("/invitation", h.InviteMember) // Invite member to trip
 }

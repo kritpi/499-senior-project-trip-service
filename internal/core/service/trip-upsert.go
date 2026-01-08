@@ -18,9 +18,11 @@ func (s *service) UpsertTrip(ctx context.Context, in domain.UpsertTripRequest) (
 		return nil, err
 	}
 
-	// validate if end date is not before start date
-	if in.EndDate.Before(*in.StartDate) {
-		return nil, fmt.Errorf("end date cannot be before start date")
+	if in.StartDate != nil && in.EndDate != nil {
+		// validate if end date is not before start date
+		if in.EndDate.Before(*in.StartDate) {
+			return nil, fmt.Errorf("end date cannot be before start date")
+		}
 	}
 
 	// Insert CreatedAt for a new trip
