@@ -32,5 +32,12 @@ type MemberTrips struct {
 	StartDate    time.Time     `db:"start_date"`
 	EndDate      time.Time     `db:"end_date"`
 	MainLocation string        `db:"main_location"`
-	Role         enum.TripRole `db:"member_role"`
+	Role         enum.MemberRole `db:"member_role"`
+}
+
+type TripMemberWithDetails struct {
+	MemberId string        `db:"member_id"`
+	Name     string        `db:"name"`
+	ImageUrl string        `db:"image_url"`
+	Role     enum.MemberRole `db:"member_role"`
 }

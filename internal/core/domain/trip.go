@@ -67,8 +67,8 @@ func (t UpsertTripResponse) FromEntity(e entity.UpsertTripResponse) *UpsertTripR
 }
 
 type TripMember struct {
-	MemberId string        `json:"member_id"`
-	Role     enum.TripRole `json:"role"`
+	MemberId string          `json:"member_id"`
+	Role     enum.MemberRole `json:"role"`
 }
 
 type BatchCreateTripMemberRequest struct {
@@ -86,12 +86,12 @@ type GetMemberTripsResponse struct {
 }
 
 type MemberTrips struct {
-	TripId       int           `json:"trip_id"`
-	TripName     string        `json:"trip_name"`
-	StartDate    time.Time     `json:"start_date"`
-	EndDate      time.Time     `json:"end_date"`
-	MainLocation string        `json:"main_location"`
-	Role         enum.TripRole `json:"role"`
+	TripId       int             `json:"trip_id"`
+	TripName     string          `json:"trip_name"`
+	StartDate    time.Time       `json:"start_date"`
+	EndDate      time.Time       `json:"end_date"`
+	MainLocation string          `json:"main_location"`
+	Role         enum.MemberRole `json:"role"`
 }
 
 func (t GetMemberTripsResponse) FromEntity(e entity.GetMemberTripsResponse) *GetMemberTripsResponse {
@@ -109,4 +109,49 @@ func (t GetMemberTripsResponse) FromEntity(e entity.GetMemberTripsResponse) *Get
 	return &GetMemberTripsResponse{
 		Trips: trips,
 	}
+}
+
+// TripMemberDetails represents a member's details in a trip
+type TripMemberDetails struct {
+	MemberId string          `json:"member_id"`
+	Name     string          `json:"name"`
+	ImageUrl string          `json:"image_url"`
+	Role     enum.MemberRole `json:"role"`
+}
+
+func (t TripMemberDetails) FromEntity(e entity.TripMemberWithDetails) TripMemberDetails {
+	return TripMemberDetails{
+		MemberId: e.MemberId,
+		Name:     e.Name,
+		ImageUrl: e.ImageUrl,
+		Role:     e.Role,
+	}
+}
+
+// GetTripByIdRequest is the request for getting a trip by ID
+type GetTripByIdRequest struct {
+	TripId   int    `json:"trip_id"`
+	MemberId string `json:"member_id"`
+}
+
+// GetTripByIdResponse is the response for getting a trip by ID
+type GetTripByIdResponse struct {
+	Trip    *Trip               `json:"trip"`
+	Members []TripMemberDetails `json:"members"`
+}
+
+type TripInvitationRequest struct {
+	MemberId string          `json:"member_id"`
+	TripId   int             `json:"trip_id"`
+	Member   []InvitedMember `json:"member"`
+}
+
+type InvitedMember struct {
+	Email string          `json:"email"`
+	Role  enum.MemberRole `json:"role"`
+}
+
+type InviteMemberResponse struct {
+	Message string   `json:"message"`
+	Member  []string `json:"member"`
 }

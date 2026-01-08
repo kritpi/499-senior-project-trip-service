@@ -16,8 +16,8 @@ func (h *restHandler) UpsertTrip(c *fiber.Ctx) error {
 			"message": "invalid request",
 		})
 	}
-
-	resp, err := h.svc.UpsertTrip(ctx, *req.ToDomain(jwtClaims.ID))
+	test := req.ToDomain(jwtClaims.ID)
+	resp, err := h.svc.UpsertTrip(ctx, *test)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err.Error(),

@@ -21,7 +21,7 @@ func (r *Repository) GetTripById(ctx context.Context, tripId int) (*domain.Trip,
 			end_date,
 			main_location,
 			created_at,
-			updated_at,
+			updated_at
 		FROM %s
 		WHERE id = @id
 	`, r.cfg.Table.TripTable)

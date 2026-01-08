@@ -1,10 +1,10 @@
 package enum
 
 // TripRole represents the role of a member in a trip
-type TripRole string
+type MemberRole string
 
 const (
-	TripRoleOwner  TripRole = "OWNER"
-	TripRoleEditor TripRole = "EDITOR"
-	TripRoleViewer TripRole = "VIEWER"
+	MemberRoleOwner  MemberRole = "OWNER"
+	MemberRoleEditor MemberRole = "EDITOR"
+	MemberRoleViewer MemberRole = "VIEWER"
 )
