@@ -9,48 +9,27 @@ import (
 	"github.com/kritpi/499-senior-project-trip-service/internal/repository/entity"
 )
 
-func (r *Repository) CheckExistingMember(ctx context.Context, checkExistingMember []string) (*[]domain.GetExistingMemberResp, error) {
+func (r *Repository) CheckExistingMember(ctx context.Context, email string) (*domain.GetExistingMemberResp, error) {
 	queryString := fmt.Sprintf(`
 		SELECT
 			id,
 			email
 		FROM %s
-		WHERE email = ANY(@existingMember)
+		WHERE email = @email
 	`, r.cfg.Table.MemberTable)
 
 	args := pgx.NamedArgs{
-		"existingMember": checkExistingMember,
+		"email": email,
 	}
 
-	rows, err := r.db.Query(ctx, queryString, args)
+	var member entity.GetExistingMemberResp
+	err := r.db.QueryRow(ctx, queryString, args).Scan(&member.ID, &member.Email)
 	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var existing []entity.GetExistingMemberResp
-
-	for rows.Next() {
-		var id string
-		var email string
-		if err := rows.Scan(&id, &email); err != nil {
-			return nil, err
+		if err == pgx.ErrNoRows {
+			return nil, nil // Member not found
 		}
-		existing = append(existing, entity.GetExistingMemberResp{
-			ID:    id,
-			Email: email,
-		})
-	}
-
-	if err := rows.Err(); err != nil {
 		return nil, err
 	}
 
-	// Convert entity to domain
-	var result []domain.GetExistingMemberResp
-	for _, e := range existing {
-		result = append(result, *domain.GetExistingMemberResp{}.FromEntity(e))
-	}
-
-	return &result, nil
+	return domain.GetExistingMemberResp{}.FromEntity(member), nil
 }

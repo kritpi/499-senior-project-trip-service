@@ -20,6 +20,7 @@ func (r *Repository) GetTripById(ctx context.Context, tripId int) (*domain.Trip,
 			start_date,
 			end_date,
 			main_location,
+			image_url,
 			created_at,
 			updated_at
 		FROM %s
@@ -39,6 +40,7 @@ func (r *Repository) GetTripById(ctx context.Context, tripId int) (*domain.Trip,
 		&trip.StartDate,
 		&trip.EndDate,
 		&trip.MainLocation,
+		&trip.ImageUrl,
 		&trip.CreatedAt,
 		&trip.UpdatedAt,
 	)

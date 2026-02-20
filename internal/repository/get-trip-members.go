@@ -14,6 +14,7 @@ func (r *Repository) GetTripMembers(ctx context.Context, tripId int) ([]domain.T
 	queryString := fmt.Sprintf(`
 		SELECT
 			m.id as member_id,
+			m.email,
 			m.name,
 			m.image_url,
 			tm.member_role
@@ -39,6 +40,7 @@ func (r *Repository) GetTripMembers(ctx context.Context, tripId int) ([]domain.T
 		var member entity.TripMemberWithDetails
 		err := rows.Scan(
 			&member.MemberId,
+			&member.Email,
 			&member.Name,
 			&member.ImageUrl,
 			&member.Role,

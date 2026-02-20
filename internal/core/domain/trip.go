@@ -16,6 +16,7 @@ type Trip struct {
 	StartDate    time.Time `json:"start_date"`
 	EndDate      time.Time `json:"end_date"`
 	MainLocation string    `json:"main_location"`
+	ImageUrl     string    `json:"image_url"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
 }
@@ -29,6 +30,7 @@ func (t Trip) FromEntity(e entity.Trip) *Trip {
 		StartDate:    e.StartDate,
 		EndDate:      e.EndDate,
 		MainLocation: e.MainLocation,
+		ImageUrl:     e.ImageUrl,
 		CreatedAt:    e.CreatedAt,
 		UpdatedAt:    e.UpdatedAt,
 	}
@@ -52,6 +54,7 @@ type UpsertTripRequest struct {
 	StartDate    *time.Time `json:"start_date"` // 2025-07-11
 	EndDate      *time.Time `json:"end_date"`   // 2025-07-11
 	MainLocation *string    `json:"main_location"`
+	ImageUrl     *string    `json:"image_url"`
 	CreatedAt    time.Time  `json:"created_at"`
 	UpdatedAt    time.Time  `json:"updated_at"`
 }
@@ -71,10 +74,11 @@ type TripMember struct {
 	Role     enum.MemberRole `json:"role"`
 }
 
-type BatchCreateTripMemberRequest struct {
-	TripId    int          `json:"trip_id"`
-	Members   []TripMember `json:"members"`
-	CreatedAt time.Time    `json:"created_at"`
+type CreateTripMemberRequest struct {
+	TripId    int             `json:"trip_id"`
+	MemberId  string          `json:"member_id"`
+	Role      enum.MemberRole `json:"role"`
+	CreatedAt time.Time       `json:"created_at"`
 }
 
 type GetMemberTripsRequest struct {
@@ -88,9 +92,10 @@ type GetMemberTripsResponse struct {
 type MemberTrips struct {
 	TripId       int             `json:"trip_id"`
 	TripName     string          `json:"trip_name"`
-	StartDate    time.Time       `json:"start_date"`
-	EndDate      time.Time       `json:"end_date"`
-	MainLocation string          `json:"main_location"`
+	StartDate    *time.Time      `json:"start_date"`
+	EndDate      *time.Time      `json:"end_date"`
+	MainLocation *string         `json:"main_location"`
+	ImageUrl     *string         `json:"image_url"`
 	Role         enum.MemberRole `json:"role"`
 }
 
@@ -103,6 +108,7 @@ func (t GetMemberTripsResponse) FromEntity(e entity.GetMemberTripsResponse) *Get
 			StartDate:    t.StartDate,
 			EndDate:      t.EndDate,
 			MainLocation: t.MainLocation,
+			ImageUrl:     t.ImageUrl,
 			Role:         t.Role,
 		}
 	}
@@ -114,6 +120,7 @@ func (t GetMemberTripsResponse) FromEntity(e entity.GetMemberTripsResponse) *Get
 // TripMemberDetails represents a member's details in a trip
 type TripMemberDetails struct {
 	MemberId string          `json:"member_id"`
+	Email    string          `json:"email"`
 	Name     string          `json:"name"`
 	ImageUrl string          `json:"image_url"`
 	Role     enum.MemberRole `json:"role"`
@@ -122,6 +129,7 @@ type TripMemberDetails struct {
 func (t TripMemberDetails) FromEntity(e entity.TripMemberWithDetails) TripMemberDetails {
 	return TripMemberDetails{
 		MemberId: e.MemberId,
+		Email:    e.Email,
 		Name:     e.Name,
 		ImageUrl: e.ImageUrl,
 		Role:     e.Role,
@@ -137,21 +145,34 @@ type GetTripByIdRequest struct {
 // GetTripByIdResponse is the response for getting a trip by ID
 type GetTripByIdResponse struct {
 	Trip    *Trip               `json:"trip"`
+	Role    enum.MemberRole     `json:"role"`
 	Members []TripMemberDetails `json:"members"`
 }
 
 type TripInvitationRequest struct {
 	MemberId string          `json:"member_id"`
 	TripId   int             `json:"trip_id"`
-	Member   []InvitedMember `json:"member"`
+	Email    string          `json:"email"`
+	Role     enum.MemberRole `json:"role"`
 }
 
-type InvitedMember struct {
+type TripInvitationResponse struct {
 	Email string          `json:"email"`
 	Role  enum.MemberRole `json:"role"`
 }
 
-type InviteMemberResponse struct {
-	Message string   `json:"message"`
-	Member  []string `json:"member"`
+type DeleteTripMemberRequest struct {
+	TripId int    `json:"trip_id"`
+	Email  string `json:"email"`
+}
+
+type GetTripMemberRoleRequest struct {
+	TripId   int    `json:"trip_id"`
+	MemberId string `json:"member_id"`
+}
+
+type GetTripMemberRoleResponse struct {
+	TripId   int             `json:"trip_id"`
+	MemberId string          `json:"member_id"`
+	Role     enum.MemberRole `json:"role"`
 }

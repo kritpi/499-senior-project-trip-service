@@ -24,21 +24,8 @@ func (h *restHandler) InviteMember(c *fiber.Ctx) error {
 		})
 	}
 
-	if resp != nil && err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "unable to invite member",
-			"members": resp.Member,
-		})
-	}
-
-	if resp != nil && err == nil {
-	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-		"message": "unable to invite these members",
-		"members": resp.Member,
-	})
-	}
-
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": "invitation sent",
+		"email": resp.Email,
+		"role": resp.Role,
 	})
 }

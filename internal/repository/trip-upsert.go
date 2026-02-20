@@ -19,6 +19,7 @@ func (r *Repository) UpsertTrip(ctx context.Context, in domain.UpsertTripRequest
 		"main_location": in.MainLocation,
 		"created_at":    in.CreatedAt,
 		"updated_at":    in.UpdatedAt,
+		"image_url":     in.ImageUrl,
 	}
 	var queryString string
 
@@ -32,6 +33,7 @@ func (r *Repository) UpsertTrip(ctx context.Context, in domain.UpsertTripRequest
                 start_date,
                 end_date,
                 main_location,
+                image_url,
                 created_at,
                 updated_at
             )
@@ -42,6 +44,7 @@ func (r *Repository) UpsertTrip(ctx context.Context, in domain.UpsertTripRequest
                 @start_date,
                 @end_date,
                 @main_location,
+                @image_url,
                 @created_at,
                 @updated_at
             )
@@ -57,6 +60,7 @@ func (r *Repository) UpsertTrip(ctx context.Context, in domain.UpsertTripRequest
                 start_date    = @start_date,
                 end_date      = @end_date,
                 main_location = @main_location,
+                image_url     = @image_url,
                 updated_at    = @updated_at
             WHERE id = @id
             RETURNING id;

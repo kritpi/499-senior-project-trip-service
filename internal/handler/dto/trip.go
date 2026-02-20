@@ -1,8 +1,9 @@
 package dto
 
 import (
-	"github.com/gofiber/fiber/v2/log"
 	"time"
+
+	"github.com/gofiber/fiber/v2/log"
 
 	"github.com/kritpi/499-senior-project-trip-service/internal/core/domain"
 	"github.com/kritpi/499-senior-project-trip-service/internal/enum"
@@ -31,6 +32,7 @@ type UpsertTripRequest struct {
 	StartDate    *string `json:"start_date"` // 2025-07-11
 	EndDate      *string `json:"end_date"`   // 2025-07-11
 	MainLocation *string `json:"main_location"`
+	ImageUrl     *string `json:"image_url"`
 }
 
 func (t UpsertTripRequest) ToDomain(memberId string) *domain.UpsertTripRequest {
@@ -62,6 +64,7 @@ func (t UpsertTripRequest) ToDomain(memberId string) *domain.UpsertTripRequest {
 		StartDate:    startDate,
 		EndDate:      endDate,
 		MainLocation: t.MainLocation,
+		ImageUrl:     t.ImageUrl,
 	}
 }
 
@@ -103,21 +106,35 @@ type GetMemberTripsResponse struct {
 type MemberTrips struct {
 	TripId       int             `json:"trip_id"`
 	TripName     string          `json:"trip_name"`
-	StartDate    string          `json:"start_date"`
-	EndDate      string          `json:"end_date"`
-	MainLocation string          `json:"main_location"`
+	StartDate    *string         `json:"start_date"`
+	EndDate      *string         `json:"end_date"`
+	MainLocation *string         `json:"main_location"`
+	ImageUrl     *string         `json:"image_url"`
 	Role         enum.MemberRole `json:"role"`
 }
 
 func (t GetMemberTripsResponse) FromDomain(dm *domain.GetMemberTripsResponse) *GetMemberTripsResponse {
 	trip := make([]MemberTrips, len(dm.Trips))
 	for i, t := range dm.Trips {
+		var startDate *string
+		if t.StartDate != nil {
+			sd := utils.DateTimeToDateString(t.StartDate) // Corrected: pass t.StartDate (which is *time.Time)
+			startDate = &sd
+		}
+
+		var endDate *string
+		if t.EndDate != nil {
+			ed := utils.DateTimeToDateString(t.EndDate) // Corrected: pass t.EndDate (which is *time.Time)
+			endDate = &ed
+		}
+
 		trip[i] = MemberTrips{
 			TripId:       t.TripId,
 			TripName:     t.TripName,
-			StartDate:    utils.DateTimeToDateString(t.StartDate),
-			EndDate:      utils.DateTimeToDateString(t.EndDate),
+			StartDate:    startDate,
+			EndDate:      endDate,
 			MainLocation: t.MainLocation,
+			ImageUrl:     t.ImageUrl,
 			Role:         t.Role,
 		}
 	}
@@ -135,6 +152,7 @@ type GetTripByIdRequest struct {
 // TripMemberDetails represents a member in a trip with their role
 type TripMemberDetails struct {
 	MemberId string          `json:"member_id"`
+	Email    string          `json:"email"`
 	Name     string          `json:"name"`
 	ImageUrl string          `json:"image_url"`
 	Role     enum.MemberRole `json:"role"`
@@ -144,11 +162,13 @@ type TripMemberDetails struct {
 type GetTripByIdResponse struct {
 	ID           int                 `json:"trip_id"`
 	OwnerId      string              `json:"owner_id"`
-	TripName     string              `json:"trip_name"`
-	Description  string              `json:"description"`
-	StartDate    string              `json:"start_date"`
-	EndDate      string              `json:"end_date"`
-	MainLocation string              `json:"main_location"`
+	TripName     *string             `json:"trip_name"`
+	Description  *string             `json:"description"`
+	StartDate    *string             `json:"start_date"`
+	EndDate      *string             `json:"end_date"`
+	MainLocation *string             `json:"main_location"`
+	ImageUrl     *string             `json:"image_url"`
+	Role         enum.MemberRole     `json:"role"`
 	Members      []TripMemberDetails `json:"members"`
 }
 
@@ -160,61 +180,124 @@ func (t GetTripByIdResponse) FromDomain(resp *domain.GetTripByIdResponse) *GetTr
 	for i, m := range resp.Members {
 		members[i] = TripMemberDetails{
 			MemberId: m.MemberId,
+			Email:    m.Email,
 			Name:     m.Name,
 			ImageUrl: m.ImageUrl,
 			Role:     m.Role,
 		}
 	}
 
+	// Convert TripName to *string
+	var tripName *string
+	if trip.TripName != "" {
+		tripName = &trip.TripName
+	}
+
+	// Convert Description to *string
+	var description *string
+	if trip.Description != "" {
+		description = &trip.Description
+	}
+
+	// Convert StartDate (time.Time) to *string
+	startDateStr := utils.DateTimeToDateString(&trip.StartDate)
+	var startDate *string
+	if startDateStr != "" {
+		startDate = &startDateStr
+	}
+
+	// Convert EndDate (time.Time) to *string
+	endDateStr := utils.DateTimeToDateString(&trip.EndDate)
+	var endDate *string
+	if endDateStr != "" {
+		endDate = &endDateStr
+	}
+
+	// Convert MainLocation to *string
+	var mainLocation *string
+	if trip.MainLocation != "" {
+		mainLocation = &trip.MainLocation
+	}
+
+	var imageUrl *string
+	if trip.ImageUrl != "" {
+		imageUrl = &trip.ImageUrl
+	}
+
 	return &GetTripByIdResponse{
 		ID:           trip.ID,
 		OwnerId:      trip.OwnerId,
-		TripName:     trip.TripName,
-		Description:  trip.Description,
-		StartDate:    utils.DateTimeToDateString(trip.StartDate),
-		EndDate:      utils.DateTimeToDateString(trip.EndDate),
-		MainLocation: trip.MainLocation,
+		TripName:     tripName,
+		Description:  description,
+		StartDate:    startDate,
+		EndDate:      endDate,
+		MainLocation: mainLocation,
+		ImageUrl:     imageUrl,
+		Role:         resp.Role,
 		Members:      members,
 	}
 }
 
 type TripInvitationRequest struct {
 	TripId int             `json:"trip_id"`
-	Member []InvitedMember `json:"member"`
+	Email  string          `json:"email"`
+	Role   enum.MemberRole `json:"role"`
 }
 
-type InvitedMember struct {
+func (t TripInvitationRequest) ToDomain(memberId string) *domain.TripInvitationRequest {
+	return &domain.TripInvitationRequest{
+		MemberId: memberId,
+		TripId:   t.TripId,
+		Email:    t.Email,
+		Role:     t.Role,
+	}
+}
+
+type TripInvitationResponse struct {
 	Email string          `json:"email"`
 	Role  enum.MemberRole `json:"role"`
 }
 
-func (t TripInvitationRequest) ToDomain(memberId string) *domain.TripInvitationRequest {
-	member := make([]domain.InvitedMember, len(t.Member))
-	for i, m := range t.Member {
-		member[i] = domain.InvitedMember{
-			Email: m.Email,
-			Role:  m.Role,
-		}
+func (t TripInvitationResponse) FromDomain(resp *domain.TripInvitationResponse) *TripInvitationResponse {
+	return &TripInvitationResponse{
+		Email: resp.Email,
+		Role:  resp.Role,
 	}
-	return &domain.TripInvitationRequest{
-		MemberId: memberId,
+}
+
+type DeleteTripMemberRequest struct {
+	TripId int    `json:"trip_id"`
+	Email  string `json:"email"`
+}
+
+func (d DeleteTripMemberRequest) ToDomain() *domain.DeleteTripMemberRequest {
+	return &domain.DeleteTripMemberRequest{
+		TripId: d.TripId,
+		Email:  d.Email,
+	}
+}
+
+type GetTripMemberRoleRequest struct {
+	TripId int `json:"trip_id"`
+}
+
+func (t GetTripMemberRoleRequest) ToDomain(memberId string) *domain.GetTripMemberRoleRequest {
+	return &domain.GetTripMemberRoleRequest{
 		TripId:   t.TripId,
-		Member:   member,
+		MemberId: memberId,
 	}
 }
 
-type InviteMemberResponse struct {
-	Message string   `json:"message"`
-	Member  []string `json:"member"`
+type GetTripMemberRoleResponse struct {
+	TripId   int             `json:"trip_id"`
+	MemberId string          `json:"member_id"`
+	Role     enum.MemberRole `json:"role"`
 }
 
-func (i InviteMemberResponse) FromDomain(resp *domain.InviteMemberResponse) *InviteMemberResponse {
-	member := make([]string, len(resp.Member))
-	for i, m := range resp.Member {
-		member[i] = m
-	}
-	return &InviteMemberResponse{
-		Message: resp.Message,
-		Member:  member,
+func (t GetTripMemberRoleResponse) FromDomain(d domain.GetTripMemberRoleResponse) *GetTripMemberRoleResponse {
+	return &GetTripMemberRoleResponse{
+		TripId:   d.TripId,
+		MemberId: d.MemberId,
+		Role:     d.Role,
 	}
 }

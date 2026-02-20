@@ -17,6 +17,7 @@ func (r *Repository) GetMemberTrips(ctx context.Context, in domain.GetMemberTrip
 			t.start_date,
 			t.end_date,
 			t.main_location,
+			t.image_url,
 			tm.member_role
 		FROM %s t
 		INNER JOIN %s tm
@@ -47,6 +48,7 @@ func (r *Repository) GetMemberTrips(ctx context.Context, in domain.GetMemberTrip
 			&t.StartDate,
 			&t.EndDate,
 			&t.MainLocation,
+			&t.ImageUrl,
 			&t.Role,
 		); err != nil {
 			return nil, err
