@@ -27,6 +27,10 @@ func (s *service) GetTripById(ctx context.Context, in domain.GetTripByIdRequest)
 		log.Errorf("Service.GetTripById - GetTripById: %v", err)
 		return nil, err
 	}
+	role, err := s.repo.GetTripMemberRole(ctx, in.MemberId, in.TripId)
+	if err != nil {
+		log.Errorf("Service.GetTripById - GetMemberRole: %v", err)
+	}
 
 	if trip == nil {
 		log.Warnf("Service.GetTripById: trip %d not found", in.TripId)
@@ -42,6 +46,7 @@ func (s *service) GetTripById(ctx context.Context, in domain.GetTripByIdRequest)
 
 	return &domain.GetTripByIdResponse{
 		Trip:    trip,
+		Role:    *role,
 		Members: members,
 	}, nil
 }

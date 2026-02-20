@@ -7,6 +7,7 @@ import (
 
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/kritpi/499-senior-project-trip-service/internal/core/domain"
+	"github.com/kritpi/499-senior-project-trip-service/internal/enum"
 )
 
 func (s *service) UpsertTrip(ctx context.Context, in domain.UpsertTripRequest) (*domain.UpsertTripResponse, error) {
@@ -40,20 +41,16 @@ func (s *service) UpsertTrip(ctx context.Context, in domain.UpsertTripRequest) (
 			log.Errorf("unable to insert/update trip: %+v", txErr)
 			return txErr
 		}
-		
+
 		// Checking if trip is existed. If not, insert trip member (OWNER)
 		if in.ID == nil {
-			var tripMember []domain.TripMember
-			tripMember = append(tripMember, domain.TripMember{
-				MemberId: member.ID,
-				Role:     "OWNER",
-			})
-			createReq := domain.BatchCreateTripMemberRequest{
+			createReq := domain.CreateTripMemberRequest{
 				TripId:    resp.TripId,
-				Members:   tripMember,
+				MemberId:  member.ID,
+				Role:      enum.MemberRoleOwner,
 				CreatedAt: now,
 			}
-			txErr = s.repo.BatchCreateTripMember(txCtx, createReq)
+			txErr = s.repo.CreateTripMember(txCtx, createReq)
 			if txErr != nil {
 				log.Errorf("unable to insert trip member: %+v", txErr)
 				return txErr

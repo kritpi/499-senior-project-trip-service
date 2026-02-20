@@ -13,9 +13,21 @@
     },
     "auth": {
         "client_id": "",
-        "jwt_secrets": ""
+        "jwt_secrets": "",
+        "client_secret": ""
     },
     "table_schema": {
-        "member_table": ""
+        "member_table": "",
+        "trip_table": "",
+        "trip_memebers_table": ""
+    },
+    "storage": {
+        "url": "",
+        "api_key": "",
+        "bucket": ""
+    },
+    "redis": {
+        "host": "",
+        "port": ""
     }
 }

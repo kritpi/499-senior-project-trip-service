@@ -17,6 +17,16 @@ type RestHandler interface {
 	GetMemberTrips(c *fiber.Ctx) error
 	GetTripById(c *fiber.Ctx) error
 	InviteMember(c *fiber.Ctx) error
+	DeleteInvitedMember(c *fiber.Ctx) error
+	GetTripMemberRole(c *fiber.Ctx) error
+
+	// Expense
+	UpsertExpense(c *fiber.Ctx) error
+	GetTripExpense(c *fiber.Ctx) error
+	DeleteTripExpense(c *fiber.Ctx) error
+
+	// Storage
+	UploadImage(c *fiber.Ctx) error
 }
 
 type restHandler struct {
