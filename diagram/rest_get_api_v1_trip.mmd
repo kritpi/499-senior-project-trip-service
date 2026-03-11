@@ -1,0 +1,24 @@
+sequenceDiagram
+    autonumber
+    actor Client
+    participant Fiber as Fiber Router
+    participant Auth as AuthMiddleware
+    participant Handler as RestHandler
+    participant Service
+    participant Repo
+    participant DB
+
+    Client->>Fiber: GET /api/v1/trip (Authorization)
+    Fiber->>Auth: Authenticate
+    alt auth failed
+        Auth-->>Client: 401 {message}
+    else auth ok
+        Auth-->>Fiber: set Locals("user")
+        Fiber->>Handler: GetMemberTrips
+        Handler->>Service: GetMemberTrips(member_id)
+        Service->>Repo: GetMemberTrips
+        Repo->>DB: SELECT trips for member
+        DB-->>Repo: trips
+        Service-->>Handler: trips
+        Handler-->>Client: 200 trips
+    end

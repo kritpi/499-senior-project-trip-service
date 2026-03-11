@@ -1,0 +1,40 @@
+sequenceDiagram
+    autonumber
+    actor Client
+    participant Fiber as Fiber Router
+    participant Handler as RestHandler
+    participant GoogleOAuth as Google OAuth Token API
+    participant Service
+    participant GoogleID as Google ID Token Validation
+    participant Repo
+    participant DB
+
+    Client->>Fiber: POST /api/v1/auth/google (code, code_verifier, redirect_uri)
+    Fiber->>Handler: GoogleAuth
+    Handler->>GoogleOAuth: POST /token (exchange code)
+    alt token exchange failed
+        GoogleOAuth-->>Handler: error response
+        Handler-->>Client: 401 {message}
+    else token exchange ok
+        GoogleOAuth-->>Handler: id_token
+        Handler->>Service: GoogleAuth(id_token)
+        Service->>GoogleID: Validate id_token
+        alt invalid id_token
+            GoogleID-->>Service: error
+            Service-->>Handler: error
+            Handler-->>Client: 500 {message}
+        else valid id_token
+            GoogleID-->>Service: claims
+            Service->>Repo: GetMemberByEmail(email)
+            Repo->>DB: SELECT member by email
+            DB-->>Repo: member or nil
+            alt member not found
+                Service->>Repo: CreateMember
+                Repo->>DB: INSERT member
+                DB-->>Repo: member_id
+            end
+            Service->>Service: Generate JWT
+            Service-->>Handler: access_token
+            Handler-->>Client: 200 {access_token}
+        end
+    end

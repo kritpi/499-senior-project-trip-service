@@ -1,0 +1,22 @@
+sequenceDiagram
+    autonumber
+    actor Client
+    participant SocketServer as Socket.IO Server
+    participant Handler as SocketHandler
+    participant Service
+    participant Repo
+    participant DB
+
+    Client->>SocketServer: emit activity:join {trip_id, trip_date}
+    SocketServer->>Handler: ActivityJoin
+    Handler->>Handler: set SocketContext, join room
+    Handler->>Service: SocketActivityJoin(member_id, trip_id, trip_date)
+    Service->>Repo: GetTripMemberRole
+    Repo->>DB: SELECT role
+    DB-->>Repo: role
+    Service->>Repo: GetActivities(trip_id, trip_date)
+    Repo->>DB: SELECT activities
+    DB-->>Repo: activities
+    Service-->>Handler: activities + isEditable
+    Handler-->>SocketServer: emit activity:join response
+    SocketServer-->>Client: activity:join response

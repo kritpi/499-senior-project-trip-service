@@ -1,0 +1,35 @@
+sequenceDiagram
+    autonumber
+    actor Client
+    participant Fiber as Fiber Router
+    participant Auth as AuthMiddleware
+    participant Handler as RestHandler
+    participant Service
+    participant Repo
+    participant DB
+
+    Client->>Fiber: PUT /api/v1/trip (Authorization, body)
+    Fiber->>Auth: Authenticate
+    Auth->>Auth: AuthenticateFromHeader
+    alt auth failed
+        Auth-->>Client: 401 {message}
+    else auth ok
+        Auth-->>Fiber: set Locals("user")
+        Fiber->>Handler: UpsertTrip
+        alt invalid body
+            Handler-->>Client: 400 {message}
+        else valid body
+            Handler->>Service: UpsertTrip(owner_id, trip data)
+            Service->>Repo: GetMemberById(owner_id)
+            Repo->>DB: SELECT member by id
+            DB-->>Repo: member
+            Service->>Service: validate dates
+            Service->>Repo: Transactional
+            Repo->>DB: UPSERT trip
+            alt new trip
+                Repo->>DB: INSERT trip_member (role=OWNER)
+            end
+            Service-->>Handler: trip_id
+            Handler-->>Client: 201 {trip_id}
+        end
+    end

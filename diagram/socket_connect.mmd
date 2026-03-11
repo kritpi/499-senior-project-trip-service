@@ -1,0 +1,16 @@
+sequenceDiagram
+    autonumber
+    actor Client
+    participant SocketServer as Socket.IO Server
+    participant Auth as Auth
+
+    Client->>SocketServer: Connect with ?token=... (namespace /)
+    SocketServer->>Auth: AuthenticateFromHeader(Bearer token)
+    alt invalid or missing token
+        Auth-->>SocketServer: error
+        SocketServer-->>Client: connection error
+    else valid token
+        Auth-->>SocketServer: claims
+        SocketServer->>SocketServer: set SocketContext(member_id)
+        SocketServer-->>Client: connection ok
+    end

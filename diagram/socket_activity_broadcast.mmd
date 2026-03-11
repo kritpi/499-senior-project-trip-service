@@ -1,0 +1,18 @@
+sequenceDiagram
+    autonumber
+    participant Redis as Redis Stream
+    participant Worker as ActivityBroadcastWorker
+    participant Service
+    participant Repo
+    participant DB
+    participant SocketServer as Socket.IO Server
+    actor Client
+
+    Redis-->>Worker: XREADGROUP activity-broadcast-stream
+    Worker->>Service: ActivityUpsertBroadcast(trip_id, date)
+    Service->>Repo: GetActivities(trip_id, date)
+    Repo->>DB: SELECT activities
+    DB-->>Repo: activities
+    Service-->>Worker: activities payload
+    Worker->>SocketServer: BroadcastToRoom(activity:broadcast)
+    SocketServer-->>Client: activity:broadcast payload

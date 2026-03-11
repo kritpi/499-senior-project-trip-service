@@ -1,0 +1,11 @@
+sequenceDiagram
+    autonumber
+    actor Client
+    participant SocketServer as Socket.IO Server
+    participant Handler as SocketHandler
+
+    Client->>SocketServer: emit activity:leave {trip_id, trip_date}
+    SocketServer->>Handler: ActivityLeave
+    Handler->>Handler: leave room, update SocketContext
+    Handler-->>SocketServer: emit activity:leave {success, message}
+    SocketServer-->>Client: activity:leave {success, message}
