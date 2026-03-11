@@ -50,24 +50,6 @@ CREATE TABLE activity (
     updated_at TIMESTAMPTZ NOT NULL
 );
 
--- group
-CREATE TABLE grouping (
-    id TEXT PRIMARY KEY NOT NULL, -- UUID
-    trip_id INT NOT NULL REFERENCES trip(id),
-    name TEXT NOT NULL,
-    description TEXT,    
-    created_at TIMESTAMPTZ NOT NULL,
-    updated_at TIMESTAMPTZ NOT NULL
-);
-
--- group member
-CREATE TABLE grouping_members (
-    group_id TEXT NOT NULL REFERENCES grouping(id),
-    trip_id INT NOT NULL REFERENCES trip(id),    
-    member_id TEXT NOT NULL REFERENCES member(id),
-    PRIMARY KEY(group_id, trip_id, member_id)
-);
-
 -- expense
 CREATE TABLE expense (
     id TEXT PRIMARY KEY NOT NULL, -- uuid

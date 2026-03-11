@@ -17,6 +17,7 @@ type Service interface {
 	InviteMember(ctx context.Context, in domain.TripInvitationRequest) (*domain.TripInvitationResponse, error)
 	DeleteInvitedMember(ctx context.Context, in domain.DeleteTripMemberRequest) error
 	GetTripMemberRole(ctx context.Context, in domain.GetTripMemberRoleRequest) (*domain.GetTripMemberRoleResponse, error)
+	GetTripMembers(ctx context.Context, in domain.GetTripMembersRequest) ([]domain.TripMemberDetails, error)
 
 	// Storage
 	UploadImage(ctx context.Context, in domain.UploadImageRequest) (*domain.UploadImageResponse, error)

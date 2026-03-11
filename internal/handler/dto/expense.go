@@ -1,6 +1,8 @@
 package dto
 
 import (
+	"math"
+
 	"github.com/kritpi/499-senior-project-trip-service/internal/core/domain"
 	"github.com/kritpi/499-senior-project-trip-service/internal/enum"
 	"github.com/shopspring/decimal"
@@ -47,6 +49,8 @@ type TripExpenseResponse struct {
 	TripId        int               `json:"trip_id"`
 	TotalAmount   float64           `json:"total_amount"`
 	MyTotalAmount float64           `json:"my_total_amount"`
+	AvgPerDay     float64           `json:"avg_per_day"`
+	MyAvgPerDay   float64           `json:"my_avg_per_day"`
 	Expenses      []ExpenseResponse `json:"expenses"`
 }
 
@@ -56,6 +60,7 @@ type ExpenseResponse struct {
 	Amount      float64                 `json:"amount"`
 	MyShared    float64                 `json:"my_shared"`
 	CreatedBy   string                  `json:"created_by"` //name
+	OwnerImage  string                  `json:"owner_image"`
 	ImageUrl    *string                 `json:"image_url"`
 	SplitType   enum.SplitType          `json:"split_type"`
 	Participant []ExpenseMemberResponse `json:"participant"`
@@ -87,15 +92,25 @@ func (t TripExpenseResponse) FromDomain(dm *domain.TripExpenseResponse) *TripExp
 			Amount:      e.Amount.InexactFloat64(),
 			MyShared:    e.MyShared.InexactFloat64(),
 			CreatedBy:   e.CreatedBy,
+			OwnerImage:  e.OwnerImage,
 			ImageUrl:    e.ImageUrl,
 			SplitType:   e.SplitType,
 			Participant: expenseMember,
 		}
 	}
+
+	// Calculate the number of trip days (at least 1 to avoid division by zero)
+	tripDays := math.Max(1, dm.EndDate.Sub(dm.StartDate).Hours()/24+1)
+
+	totalAmount := dm.TotalAmount.InexactFloat64()
+	myTotalAmount := dm.MyTotalAmount.InexactFloat64()
+
 	return &TripExpenseResponse{
 		TripId:        dm.TripId,
-		TotalAmount:   dm.TotalAmount.InexactFloat64(),
-		MyTotalAmount: dm.MyTotalAmount.InexactFloat64(),
+		TotalAmount:   totalAmount,
+		MyTotalAmount: myTotalAmount,
+		AvgPerDay:     math.Round(totalAmount/tripDays*100) / 100,
+		MyAvgPerDay:   math.Round(myTotalAmount/tripDays*100) / 100,
 		Expenses:      expenses,
 	}
 }

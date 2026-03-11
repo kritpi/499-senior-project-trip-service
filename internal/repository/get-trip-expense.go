@@ -16,7 +16,8 @@ func (r *Repository) GetTripExpenses(ctx context.Context, in domain.TripExpenseR
 			e.title,
 			e.amount AS expense_amount,
 
-			creator.name     AS created_by,       
+			creator.name      AS created_by,
+			creator.image_url AS owner_image,
 			e.image_url,
 			e.split_type,
 
@@ -65,6 +66,7 @@ func (r *Repository) GetTripExpenses(ctx context.Context, in domain.TripExpenseR
 			&expenseRow.Title,
 			&expenseRow.ExpenseAmount,
 			&expenseRow.CreatedBy,
+			&expenseRow.OwnerImage,
 			&expenseRow.ImageURL,
 			&expenseRow.SplitType,
 			&expenseRow.MemberID,
@@ -97,7 +99,8 @@ func GroupExpense(rows []entity.ExpenseWithMemberRow) []domain.ExpenseResponse {
 				Amount:      r.ExpenseAmount,
 				MyShared:    r.MyShared,
 				CreatedBy:   r.CreatedBy,
-				ImageUrl:    &r.ImageURL, // see note below
+				OwnerImage:  derefString(r.OwnerImage),
+				ImageUrl:    &r.ImageURL,
 				SplitType:   r.SplitType,
 				Participant: []domain.ExpenseMemberResponse{},
 			}

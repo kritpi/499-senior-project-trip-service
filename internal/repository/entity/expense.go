@@ -11,6 +11,7 @@ type ExpenseWithMemberRow struct {
 	ExpenseAmount decimal.Decimal `db:"expense_amount"`
 	MyShared      decimal.Decimal `db:"my_shared"`
 	CreatedBy     string          `db:"created_by"`
+	OwnerImage    *string         `db:"owner_image"`
 	ImageURL      string          `db:"image_url"`
 	SplitType     enum.SplitType  `db:"split_type"`
 

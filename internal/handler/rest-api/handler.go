@@ -19,6 +19,7 @@ type RestHandler interface {
 	InviteMember(c *fiber.Ctx) error
 	DeleteInvitedMember(c *fiber.Ctx) error
 	GetTripMemberRole(c *fiber.Ctx) error
+	GetTripMembers(c *fiber.Ctx) error
 
 	// Expense
 	UpsertExpense(c *fiber.Ctx) error
