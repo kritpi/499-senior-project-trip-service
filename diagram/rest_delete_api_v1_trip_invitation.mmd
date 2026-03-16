@@ -1,5 +1,7 @@
 sequenceDiagram
     autonumber
+    actor User as Front-end User
+    participant Frontend
     actor Client
     participant Fiber as Fiber Router
     participant Auth as AuthMiddleware
@@ -8,15 +10,21 @@ sequenceDiagram
     participant Repo
     participant DB
 
+    User->>Frontend: clicks remove member
+    Frontend->>Client: DELETE /api/v1/trip/invitation (Authorization, body)
     Client->>Fiber: DELETE /api/v1/trip/invitation (Authorization, body)
     Fiber->>Auth: Authenticate
     alt auth failed
         Auth-->>Client: 401 {message}
+        Client->>Frontend: 401 {message}
+        Frontend->>User: displays error
     else auth ok
         Auth-->>Fiber: set Locals("user")
         Fiber->>Handler: DeleteInvitedMember
         alt invalid body
             Handler-->>Client: 400 {message}
+            Client->>Frontend: 400 {message}
+            Frontend->>User: displays error
         else valid body
             Handler->>Service: DeleteInvitedMember(trip_id, email)
             Service->>Repo: CheckExistingMember(email)
@@ -27,5 +35,7 @@ sequenceDiagram
             DB-->>Repo: ok
             Service-->>Handler: ok
             Handler-->>Client: 201 {message: "deleted"}
+            Client->>Frontend: 201 {message: "deleted"}
+            Frontend->>User: displays success
         end
     end

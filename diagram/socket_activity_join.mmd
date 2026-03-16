@@ -1,5 +1,7 @@
 sequenceDiagram
     autonumber
+    actor User as Front-end User
+    participant Frontend
     actor Client
     participant SocketServer as Socket.IO Server
     participant Handler as SocketHandler
@@ -7,6 +9,8 @@ sequenceDiagram
     participant Repo
     participant DB
 
+    User->>Frontend: opens trip activity page
+    Frontend->>Client: emit activity:join {trip_id, trip_date}
     Client->>SocketServer: emit activity:join {trip_id, trip_date}
     SocketServer->>Handler: ActivityJoin
     Handler->>Handler: set SocketContext, join room
@@ -20,3 +24,5 @@ sequenceDiagram
     Service-->>Handler: activities + isEditable
     Handler-->>SocketServer: emit activity:join response
     SocketServer-->>Client: activity:join response
+    Client->>Frontend: activity:join response
+    Frontend->>User: displays activities

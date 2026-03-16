@@ -1,5 +1,7 @@
 sequenceDiagram
     autonumber
+    actor User as Front-end User
+    participant Frontend
     actor Client
     participant Fiber as Fiber Router
     participant Auth as AuthMiddleware
@@ -8,15 +10,21 @@ sequenceDiagram
     participant Repo
     participant DB
 
+    User->>Frontend: views member role
+    Frontend->>Client: GET /api/v1/trip/:id/member/role (Authorization)
     Client->>Fiber: GET /api/v1/trip/:id/member/role (Authorization)
     Fiber->>Auth: Authenticate
     alt auth failed
         Auth-->>Client: 401 {message}
+        Client->>Frontend: 401 {message}
+        Frontend->>User: displays error
     else auth ok
         Auth-->>Fiber: set Locals("user")
         Fiber->>Handler: GetTripMemberRole
         alt invalid trip id
             Handler-->>Client: 400 {message}
+            Client->>Frontend: 400 {message}
+            Frontend->>User: displays error
         else valid trip id
             Handler->>Service: GetTripMemberRole(trip_id, member_id)
             Service->>Repo: GetTripMemberRole
@@ -24,5 +32,7 @@ sequenceDiagram
             DB-->>Repo: role
             Service-->>Handler: role
             Handler-->>Client: 200 role
+            Client->>Frontend: 200 role
+            Frontend->>User: displays role
         end
     end

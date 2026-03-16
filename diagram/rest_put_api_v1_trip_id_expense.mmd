@@ -1,5 +1,7 @@
 sequenceDiagram
     autonumber
+    actor User as Front-end User
+    participant Frontend
     actor Client
     participant Fiber as Fiber Router
     participant Auth as AuthMiddleware
@@ -8,15 +10,21 @@ sequenceDiagram
     participant Repo
     participant DB
 
+    User->>Frontend: submits expense form
+    Frontend->>Client: PUT /api/v1/trip/:id/expense (Authorization, body)
     Client->>Fiber: PUT /api/v1/trip/:id/expense (Authorization, body)
     Fiber->>Auth: Authenticate
     alt auth failed
         Auth-->>Client: 401 {message}
+        Client->>Frontend: 401 {message}
+        Frontend->>User: displays error
     else auth ok
         Auth-->>Fiber: set Locals("user")
         Fiber->>Handler: UpsertExpense
         alt invalid trip id or body
             Handler-->>Client: 400 {message}
+            Client->>Frontend: 400 {message}
+            Frontend->>User: displays error
         else valid input
             Handler->>Service: UpsertExpense(trip_id, member_id, expense data)
             Service->>Repo: GetTripById
@@ -33,5 +41,7 @@ sequenceDiagram
             Repo->>DB: INSERT expense_member batch
             Service-->>Handler: ok
             Handler-->>Client: 201 {message}
+            Client->>Frontend: 201 {message}
+            Frontend->>User: displays success
         end
     end

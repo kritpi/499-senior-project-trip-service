@@ -1,8 +1,8 @@
 sequenceDiagram
     autonumber
-    actor User
+    actor User as Front-end User
     participant Frontend
-    participant Client
+    actor Client
     participant Fiber as Fiber Router
     participant Auth as AuthMiddleware
     participant Handler as RestHandler

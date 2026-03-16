@@ -1,11 +1,17 @@
 sequenceDiagram
     autonumber
+    actor User as Front-end User
+    participant Frontend
     actor Client
     participant SocketServer as Socket.IO Server
     participant Handler as SocketHandler
 
+    User->>Frontend: leaves trip activity page
+    Frontend->>Client: emit activity:leave {trip_id, trip_date}
     Client->>SocketServer: emit activity:leave {trip_id, trip_date}
     SocketServer->>Handler: ActivityLeave
     Handler->>Handler: leave room, update SocketContext
     Handler-->>SocketServer: emit activity:leave {success, message}
     SocketServer-->>Client: activity:leave {success, message}
+    Client->>Frontend: activity:leave {success, message}
+    Frontend->>User: displays left room

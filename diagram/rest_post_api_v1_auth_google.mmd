@@ -1,5 +1,7 @@
 sequenceDiagram
     autonumber
+    actor User as Front-end User
+    participant Frontend
     actor Client
     participant Fiber as Fiber Router
     participant Handler as RestHandler
@@ -9,12 +11,16 @@ sequenceDiagram
     participant Repo
     participant DB
 
+    User->>Frontend: clicks sign in with Google
+    Frontend->>Client: POST /api/v1/auth/google (code, code_verifier, redirect_uri)
     Client->>Fiber: POST /api/v1/auth/google (code, code_verifier, redirect_uri)
     Fiber->>Handler: GoogleAuth
     Handler->>GoogleOAuth: POST /token (exchange code)
     alt token exchange failed
         GoogleOAuth-->>Handler: error response
         Handler-->>Client: 401 {message}
+        Client->>Frontend: 401 {message}
+        Frontend->>User: displays error
     else token exchange ok
         GoogleOAuth-->>Handler: id_token
         Handler->>Service: GoogleAuth(id_token)
@@ -23,6 +29,8 @@ sequenceDiagram
             GoogleID-->>Service: error
             Service-->>Handler: error
             Handler-->>Client: 500 {message}
+            Client->>Frontend: 500 {message}
+            Frontend->>User: displays error
         else valid id_token
             GoogleID-->>Service: claims
             Service->>Repo: GetMemberByEmail(email)
@@ -36,5 +44,7 @@ sequenceDiagram
             Service->>Service: Generate JWT
             Service-->>Handler: access_token
             Handler-->>Client: 200 {access_token}
+            Client->>Frontend: 200 {access_token}
+            Frontend->>User: displays logged in
         end
     end

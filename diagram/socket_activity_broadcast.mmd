@@ -1,5 +1,7 @@
 sequenceDiagram
     autonumber
+    actor User as Front-end User
+    participant Frontend
     participant Redis as Redis Stream
     participant Worker as ActivityBroadcastWorker
     participant Service
@@ -8,6 +10,7 @@ sequenceDiagram
     participant SocketServer as Socket.IO Server
     actor Client
 
+    Note over User,Frontend: Real-time activity broadcast
     Redis-->>Worker: XREADGROUP activity-broadcast-stream
     Worker->>Service: ActivityUpsertBroadcast(trip_id, date)
     Service->>Repo: GetActivities(trip_id, date)
@@ -16,3 +19,5 @@ sequenceDiagram
     Service-->>Worker: activities payload
     Worker->>SocketServer: BroadcastToRoom(activity:broadcast)
     SocketServer-->>Client: activity:broadcast payload
+    Client->>Frontend: activity:broadcast payload
+    Frontend->>User: displays updated activities
