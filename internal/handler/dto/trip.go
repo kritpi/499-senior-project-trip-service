@@ -301,3 +301,34 @@ func (t GetTripMemberRoleResponse) FromDomain(d domain.GetTripMemberRoleResponse
 		Role:     d.Role,
 	}
 }
+
+type GetTripMembersRequest struct {
+	TripId int `json:"trip_id"`
+}
+
+func (t GetTripMembersRequest) ToDomain(memberId string) *domain.GetTripMembersRequest {
+	return &domain.GetTripMembersRequest{
+		TripId:   t.TripId,
+		MemberId: memberId,
+	}
+}
+
+type GetTripMembersResponse struct {
+	Members []TripMemberDetails `json:"members"`
+}
+
+func (t GetTripMembersResponse) FromDomain(dm []domain.TripMemberDetails) *GetTripMembersResponse {
+	members := make([]TripMemberDetails, len(dm))
+	for i, m := range dm {
+		members[i] = TripMemberDetails{
+			MemberId: m.MemberId,
+			Email:    m.Email,
+			Name:     m.Name,
+			ImageUrl: m.ImageUrl,
+			Role:     m.Role,
+		}
+	}
+	return &GetTripMembersResponse{
+		Members: members,
+	}
+}

@@ -1,6 +1,8 @@
 package domain
 
 import (
+	"time"
+
 	"github.com/kritpi/499-senior-project-trip-service/internal/enum"
 	"github.com/shopspring/decimal"
 )
@@ -40,6 +42,8 @@ type TripExpenseRequest struct {
 
 type TripExpenseResponse struct {
 	TripId        int               `json:"trip_id"`
+	StartDate     time.Time         `json:"start_date"`
+	EndDate       time.Time         `json:"end_date"`
 	TotalAmount   decimal.Decimal   `json:"total_amount"`
 	MyTotalAmount decimal.Decimal   `json:"my_total_amount"`
 	Expenses      []ExpenseResponse `json:"expenses"`
@@ -51,6 +55,7 @@ type ExpenseResponse struct {
 	Amount      decimal.Decimal         `json:"amount"`
 	MyShared    decimal.Decimal         `json:"my_shared"`
 	CreatedBy   string                  `json:"created_by"` //name
+	OwnerImage  string                  `json:"owner_image"`
 	ImageUrl    *string                 `json:"image_url"`
 	SplitType   enum.SplitType          `json:"split_type"`
 	Participant []ExpenseMemberResponse `json:"participant"`

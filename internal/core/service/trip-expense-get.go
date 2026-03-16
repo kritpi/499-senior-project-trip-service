@@ -8,9 +8,16 @@ import (
 )
 
 func (s *service) TripExpenseGet(ctx context.Context, in domain.TripExpenseRequest) (*domain.TripExpenseResponse, error) {
+	// get trip info (for start/end date)
+	trip, err := s.repo.GetTripById(ctx, in.TripId)
+	if err != nil || trip == nil {
+		log.Errorf("unable to get trip: %+v", err)
+		return nil, err
+	}
+
 	// get trip total amount
 	tripExpenseTotalAmount, err := s.repo.GetTripExpenseTotalAmount(ctx, in.TripId)
-	if err != nil || tripExpenseTotalAmount == nil{
+	if err != nil || tripExpenseTotalAmount == nil {
 		log.Errorf("unable to get trip expenses total amount: %+v", err)
 		return nil, err
 	}
@@ -22,7 +29,7 @@ func (s *service) TripExpenseGet(ctx context.Context, in domain.TripExpenseReque
 		return nil, err
 	}
 
-	// get all trip's expense and my spit in each expense
+	// get all trip's expense and my split in each expense
 	expenses, err := s.repo.GetTripExpenses(ctx, in)
 	if err != nil || expenses == nil {
 		log.Errorf("unable to get trip's expenses: %+v", err)
@@ -31,6 +38,8 @@ func (s *service) TripExpenseGet(ctx context.Context, in domain.TripExpenseReque
 
 	tripExpenses := domain.TripExpenseResponse{
 		TripId:        in.TripId,
+		StartDate:     trip.StartDate,
+		EndDate:       trip.EndDate,
 		TotalAmount:   *tripExpenseTotalAmount,
 		MyTotalAmount: *myTotalSplit,
 		Expenses:      *expenses,

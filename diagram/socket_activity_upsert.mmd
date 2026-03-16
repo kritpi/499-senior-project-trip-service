@@ -1,0 +1,35 @@
+sequenceDiagram
+    autonumber
+    actor User as Front-end User
+    participant Frontend
+    actor Client
+    participant SocketServer as Socket.IO Server
+    participant Handler as SocketHandler
+    participant Service
+    participant Repo
+    participant DB
+    participant Redis as Redis Stream
+
+    User->>Frontend: submits activity update
+    Frontend->>Client: emit activity:upsert {trip_id, date, activities}
+    Client->>SocketServer: emit activity:upsert {trip_id, date, activities}
+    SocketServer->>Handler: ActivityUpsert
+    Handler->>Service: SocketActivityUpsert(member_id, trip_id, date, activities)
+    Service->>Repo: GetTripMemberRole
+    Repo->>DB: SELECT role
+    DB-->>Repo: role
+    alt not allowed
+        Service-->>Handler: error
+        Handler-->>SocketServer: emit activity:upsert {error}
+        SocketServer-->>Client: activity:upsert {error}
+        Client->>Frontend: activity:upsert {error}
+        Frontend->>User: displays error
+    else allowed
+        Service->>Redis: XADD activity-upsert-stream
+        Redis-->>Service: ok
+        Service-->>Handler: ok
+        Handler-->>SocketServer: emit activity:upsert {message}
+        SocketServer-->>Client: activity:upsert {message}
+        Client->>Frontend: activity:upsert {message}
+        Frontend->>User: displays success
+    end

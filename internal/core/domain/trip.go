@@ -176,3 +176,12 @@ type GetTripMemberRoleResponse struct {
 	MemberId string          `json:"member_id"`
 	Role     enum.MemberRole `json:"role"`
 }
+
+type GetTripMembersRequest struct {
+	TripId   int    `json:"trip_id"`
+	MemberId string `json:"member_id"`
+}
+
+type GetTripMembersResponse struct {
+	Members []TripMemberDetails `json:"members"`
+}

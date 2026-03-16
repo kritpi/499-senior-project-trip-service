@@ -1,0 +1,44 @@
+sequenceDiagram
+    autonumber
+    actor User as Front-end User
+    participant Frontend
+    actor Client
+    participant Fiber as Fiber Router
+    participant Auth as AuthMiddleware
+    participant Handler as RestHandler
+    participant Service
+    participant Supabase as Supabase Storage API
+
+    User->>Frontend: uploads image
+    Frontend->>Client: POST /api/v1/upload/image (Authorization, multipart/form-data)
+    Client->>Fiber: POST /api/v1/upload/image (Authorization, multipart/form-data)
+    Fiber->>Auth: Authenticate
+    alt auth failed
+        Auth-->>Client: 401 {message}
+        Client->>Frontend: 401 {message}
+        Frontend->>User: displays error
+    else auth ok
+        Auth-->>Fiber: set Locals("user")
+        Fiber->>Handler: UploadImage
+        alt missing file or non-image
+            Handler-->>Client: 400 {message}
+            Client->>Frontend: 400 {message}
+            Frontend->>User: displays error
+        else valid image
+            Handler->>Service: UploadImage(file, content_type, member_id)
+            Service->>Supabase: POST /storage/v1/object/{bucket}/images/...
+            alt upload failed
+                Supabase-->>Service: error
+                Service-->>Handler: error
+                Handler-->>Client: 500 {message}
+                Client->>Frontend: 500 {message}
+                Frontend->>User: displays error
+            else upload ok
+                Supabase-->>Service: 200/201
+                Service-->>Handler: public_url
+                Handler-->>Client: 200 {file_path, url}
+                Client->>Frontend: 200 {file_path, url}
+                Frontend->>User: displays uploaded image
+            end
+        end
+    end
