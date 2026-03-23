@@ -19,6 +19,17 @@ services:
     depends_on:
       - redis
     restart: unless-stopped
+  
+  server: 
+    build: .
+    image: trip-service:local
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
+    volumes:
+      - ./config:/app/config
+    restart: on-failure
 
 volumes:
   redis_data:
