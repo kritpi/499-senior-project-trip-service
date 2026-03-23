@@ -1,0 +1,48 @@
+sequenceDiagram
+    autonumber
+    actor User as Front-end User
+    participant Frontend
+    actor Client
+    participant Fiber as Fiber Router
+    participant Auth as AuthMiddleware
+    participant Handler as RestHandler
+    participant Service
+    participant Repo
+    participant DB
+
+    User->>Frontend: clicks delete expense
+    Frontend->>Client: DELETE /api/v1/trip/:id/expense (Authorization, body)
+    Client->>Fiber: DELETE /api/v1/trip/:id/expense (Authorization, body)
+    Fiber->>Auth: Authenticate
+    alt auth failed
+        Auth-->>Client: 401 {message}
+        Client->>Frontend: 401 {message}
+        Frontend->>User: displays error
+    else auth ok
+        Auth-->>Fiber: set Locals("user")
+        Fiber->>Handler: DeleteTripExpense
+        alt invalid trip id or body
+            Handler-->>Client: 400 {message}
+            Client->>Frontend: 400 {message}
+            Frontend->>User: displays error
+        else valid input
+            Handler->>Service: DeleteExpense(trip_id, expense_id, member_id)
+            Service->>Repo: GetTripMemberRole
+            Repo->>DB: SELECT role
+            DB-->>Repo: role
+            alt insufficient role
+                Service-->>Handler: error
+                Handler-->>Client: 500 {message}
+                Client->>Frontend: 500 {message}
+                Frontend->>User: displays error
+            else allowed
+                Service->>Repo: Transactional
+                Repo->>DB: DELETE expense_member by expense_id
+                Repo->>DB: DELETE expense
+                Service-->>Handler: ok
+                Handler-->>Client: 201 {message: "deleted"}
+                Client->>Frontend: 201 {message: "deleted"}
+                Frontend->>User: displays success
+            end
+        end
+    end

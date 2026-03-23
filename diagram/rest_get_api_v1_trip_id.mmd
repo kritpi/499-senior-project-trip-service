@@ -1,0 +1,54 @@
+sequenceDiagram
+    autonumber
+    actor User as Front-end User
+    participant Frontend
+    actor Client
+    participant Fiber as Fiber Router
+    participant Auth as AuthMiddleware
+    participant Handler as RestHandler
+    participant Service
+    participant Repo
+    participant DB
+
+    User->>Frontend: clicks on trip detail page
+    Frontend->>Client: GET /api/v1/trip/:id (Authorization)
+    Client->>Fiber: GET /api/v1/trip/:id (Authorization)
+    Fiber->>Auth: Authenticate
+    alt auth failed
+        Auth-->>Client: 401 {message}
+        Client->>Frontend: 401 {message}
+        Frontend->>User: displays error
+    else auth ok
+        Auth-->>Fiber: set Locals("user")
+        Fiber->>Handler: GetTripById
+        alt invalid trip id
+            Handler-->>Client: 400 {message}
+            Client->>Frontend: 400 {message}
+            Frontend->>User: displays error
+        else valid trip id
+            Handler->>Service: GetTripById(trip_id, member_id)
+            Service->>Repo: CheckTripMembership
+            Repo->>DB: SELECT membership
+            DB-->>Repo: is_member
+            alt not a member
+                Service-->>Handler: forbidden error
+                Handler-->>Client: 403 {message}
+                Client->>Frontend: 403 {message}
+                Frontend->>User: displays error
+            else is member
+                Service->>Repo: GetTripById
+                Repo->>DB: SELECT trip
+                DB-->>Repo: trip
+                Service->>Repo: GetTripMemberRole
+                Repo->>DB: SELECT role
+                DB-->>Repo: role
+                Service->>Repo: GetTripMembers
+                Repo->>DB: SELECT trip members
+                DB-->>Repo: members
+                Service-->>Handler: trip details, role, members
+                Handler-->>Client: 200 trip details
+                Client->>Frontend: 200 trip details
+                Frontend->>User: displays trip details
+            end
+        end
+    end

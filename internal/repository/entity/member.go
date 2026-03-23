@@ -6,3 +6,8 @@ type Member struct {
 	Email    string `json:"email"`
 	ImageUrl string `json:"image_url"`
 }
+
+type GetExistingMemberResp struct {
+	ID    string `json:"id"`
+	Email string `json:"email"`
+}

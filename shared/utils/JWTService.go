@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"errors"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2/log"
@@ -14,9 +16,9 @@ func GenerateToken(googleClaims domain.GoogleUserClaims, now time.Time, cfg prop
 	jwtSecrets := []byte(cfg.Auth.JWTSecrets)
 
 	claims := model.JWTCustomClaims{
-		ID:    googleClaims.Sub,
-		Email: googleClaims.Email,
-		Name:  googleClaims.Name,
+		ID:       googleClaims.Sub,
+		Email:    googleClaims.Email,
+		Name:     googleClaims.Name,
 		ImageUrl: googleClaims.ImageUrl,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: &jwt.NumericDate{now.Add(time.Hour * 24)},
@@ -35,11 +37,12 @@ func GenerateToken(googleClaims domain.GoogleUserClaims, now time.Time, cfg prop
 
 func ParseAndValidateToken(tokenString string, cfg property.Property) (*model.JWTCustomClaims, error) {
 	secret := []byte(cfg.Auth.JWTSecrets)
+
 	token, err := jwt.ParseWithClaims(
 		tokenString,
-		model.JWTCustomClaims{},
+		&model.JWTCustomClaims{},
 		func(t *jwt.Token) (interface{}, error) {
-			if t.Method.Alg() != jwt.SigningMethodES256.Alg() {
+			if t.Method.Alg() != jwt.SigningMethodHS256.Alg() {
 				return nil, jwt.ErrTokenSignatureInvalid
 			}
 			return secret, nil
@@ -53,5 +56,26 @@ func ParseAndValidateToken(tokenString string, cfg property.Property) (*model.JW
 	if !ok || !token.Valid {
 		return nil, jwt.ErrTokenSignatureInvalid
 	}
+
+	return claims, nil
+}
+
+func AuthenticateFromHeader(authHeader string, cfg property.Property) (*model.JWTCustomClaims, error) {
+	if authHeader == "" {
+		return nil, errors.New("missing authorization header")
+	}
+
+	parts := strings.SplitN(authHeader, " ", 2)
+	if len(parts) != 2 || !strings.EqualFold(parts[0], "Bearer") {
+		return nil, errors.New("invalid authorization header format")
+	}
+
+	tokenString := parts[1]
+
+	claims, err := ParseAndValidateToken(tokenString, cfg)
+	if err != nil {
+		return nil, errors.New("invalid or expired token")
+	}
+
 	return claims, nil
 }

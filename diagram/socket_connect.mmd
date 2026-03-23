@@ -1,0 +1,24 @@
+sequenceDiagram
+    autonumber
+    actor User as Front-end User
+    participant Frontend
+    actor Client
+    participant SocketServer as Socket.IO Server
+    participant Auth as Auth
+
+    User->>Frontend: opens application
+    Frontend->>Client: Connect with ?token=... (namespace /)
+    Client->>SocketServer: Connect with ?token=... (namespace /)
+    SocketServer->>Auth: AuthenticateFromHeader(Bearer token)
+    alt invalid or missing token
+        Auth-->>SocketServer: error
+        SocketServer-->>Client: connection error
+        Client->>Frontend: connection error
+        Frontend->>User: displays connection error
+    else valid token
+        Auth-->>SocketServer: claims
+        SocketServer->>SocketServer: set SocketContext(member_id)
+        SocketServer-->>Client: connection ok
+        Client->>Frontend: connection ok
+        Frontend->>User: displays connected
+    end

@@ -1,0 +1,45 @@
+sequenceDiagram
+    autonumber
+    actor User as Front-end User
+    participant Frontend
+    actor Client
+    participant Fiber as Fiber Router
+    participant Auth as AuthMiddleware
+    participant Handler as RestHandler
+    participant Service
+    participant Repo
+    participant DB
+
+    User->>Frontend: clicks invite member
+    Frontend->>Client: POST /api/v1/trip/invitation (Authorization, body)
+    Client->>Fiber: POST /api/v1/trip/invitation (Authorization, body)
+    Fiber->>Auth: Authenticate
+    alt auth failed
+        Auth-->>Client: 401 {message}
+        Client->>Frontend: 401 {message}
+        Frontend->>User: displays error
+    else auth ok
+        Auth-->>Fiber: set Locals("user")
+        Fiber->>Handler: InviteMember
+        alt invalid body
+            Handler-->>Client: 400 {message}
+            Client->>Frontend: 400 {message}
+            Frontend->>User: displays error
+        else valid body
+            Handler->>Service: InviteMember(owner_id, trip_id, email, role)
+            Service->>Repo: GetTripById
+            Repo->>DB: SELECT trip
+            DB-->>Repo: trip
+            Service->>Service: verify owner
+            Service->>Repo: CheckExistingMember(email)
+            Repo->>DB: SELECT member by email
+            DB-->>Repo: member
+            Service->>Repo: CreateTripMember
+            Repo->>DB: INSERT trip_member
+            DB-->>Repo: ok
+            Service-->>Handler: invited member info
+            Handler-->>Client: 200 {email, role}
+            Client->>Frontend: 200 {email, role}
+            Frontend->>User: displays success
+        end
+    end

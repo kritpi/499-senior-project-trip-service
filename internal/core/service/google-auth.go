@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2/log"
+	"github.com/google/uuid"
+
 	"github.com/kritpi/499-senior-project-trip-service/internal/core/domain"
 	"github.com/kritpi/499-senior-project-trip-service/shared/utils"
 	"google.golang.org/api/idtoken"
@@ -12,6 +14,7 @@ import (
 
 func (s *service) GoogleAuth(ctx context.Context, idToken domain.GoogleIdToken) (*domain.GoogleAuthResponse, error) {
 	now := time.Now().Local()
+	memberId := uuid.New()
 
 	googleClientId := s.cfg.Auth.ClientId
 	accountPayload, err := VerifyGoogleIdToken(ctx, idToken.IDToken, googleClientId)
@@ -26,10 +29,13 @@ func (s *service) GoogleAuth(ctx context.Context, idToken domain.GoogleIdToken) 
 		log.Errorf("unable to get member form db: %+v", err)
 		return nil, err
 	}
+	// Replace google payload sub with db stored member id
+	accountPayload.Sub = member.ID
+
 	if member == nil {
 		// create new member
-		err := s.repo.CreateMember(ctx, domain.Member{
-			ID:       googleClientId,
+		newId, err := s.repo.CreateMember(ctx, domain.Member{
+			ID:       memberId.String(),
 			Name:     accountPayload.Name,
 			Email:    accountPayload.Email,
 			ImageUrl: accountPayload.ImageUrl,
@@ -38,9 +44,11 @@ func (s *service) GoogleAuth(ctx context.Context, idToken domain.GoogleIdToken) 
 			log.Errorf("unable to create new member: +%v", err)
 			return nil, err
 		}
+		// Replace google payload sub with db stored member id
+		accountPayload.Sub = newId
 	}
 
-	// Issue JWT
+	// Issue JWT	
 	token, err := utils.GenerateToken(*accountPayload, now, s.cfg)
 	if err != nil {
 		return nil, err

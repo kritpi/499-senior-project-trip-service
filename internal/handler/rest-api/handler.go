@@ -3,21 +3,41 @@ package handler
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/kritpi/499-senior-project-trip-service/internal/core/port"
+	"github.com/kritpi/499-senior-project-trip-service/property"
 )
 
 type RestHandler interface {
-	GetTrips(c *fiber.Ctx) error
+	// GetTrips(c *fiber.Ctx) error
 
 	// Authentication
 	GoogleAuth(c *fiber.Ctx) error
+
+	// Trip
+	UpsertTrip(c *fiber.Ctx) error
+	GetMemberTrips(c *fiber.Ctx) error
+	GetTripById(c *fiber.Ctx) error
+	InviteMember(c *fiber.Ctx) error
+	DeleteInvitedMember(c *fiber.Ctx) error
+	GetTripMemberRole(c *fiber.Ctx) error
+	GetTripMembers(c *fiber.Ctx) error
+
+	// Expense
+	UpsertExpense(c *fiber.Ctx) error
+	GetTripExpense(c *fiber.Ctx) error
+	DeleteTripExpense(c *fiber.Ctx) error
+
+	// Storage
+	UploadImage(c *fiber.Ctx) error
 }
 
 type restHandler struct {
 	svc port.Service
+	cfg property.Property
 }
 
-func NewRestApi(svc port.Service) RestHandler {
+func NewRestApi(svc port.Service, cfg property.Property) RestHandler {
 	return &restHandler{
 		svc: svc,
+		cfg: cfg,
 	}
 }

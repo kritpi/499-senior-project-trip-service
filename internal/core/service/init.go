@@ -7,12 +7,14 @@ import (
 
 type service struct {
 	repo port.Repository
+	redisRepo port.RedisRepository
 	cfg  property.Property
 }
 
-func New(repo port.Repository, cfg *property.Property) port.Service {
+func New(repo port.Repository, redisRepo port.RedisRepository, cfg *property.Property) port.Service {
 	return &service{
 		repo: repo,
+		redisRepo: redisRepo,
 		cfg:  *cfg,
 	}
 }
