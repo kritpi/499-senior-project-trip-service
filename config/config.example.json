@@ -19,7 +19,11 @@
     "table_schema": {
         "member_table": "",
         "trip_table": "",
-        "trip_memebers_table": ""
+        "trip_memebers_table": "",
+        "activity_table": "",
+        "activity_members_table": "",
+        "expense_table": "",
+        "expense_members_table": ""
     },
     "storage": {
         "url": "",
