@@ -29,8 +29,10 @@ func (s *service) GoogleAuth(ctx context.Context, idToken domain.GoogleIdToken) 
 		log.Errorf("unable to get member form db: %+v", err)
 		return nil, err
 	}
-	// Replace google payload sub with db stored member id
-	accountPayload.Sub = member.ID
+	if member != nil {
+		// Replace google payload sub with db stored member id
+		accountPayload.Sub = member.ID
+	}
 
 	if member == nil {
 		// create new member
